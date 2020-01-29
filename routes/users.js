@@ -10,6 +10,6 @@ router.get('/', auth, UserController.getUsers);
 router.post('/', UserController.createUser);
 
 /* GET one user */
-router.get('/:id', UserController.getOneUser);
+router.get('/:id', auth, UserController.getOneUser);
 
 module.exports = router;
