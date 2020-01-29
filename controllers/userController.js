@@ -41,14 +41,71 @@ const createUser = async (req, res) => {
 
 		jwt.sign(payload, process.env.jwtSecret, { expiresIn: 360000 }, (err, token) => {
 			if (err) throw err;
-			res.json({ token });
+			res.status(200).send({
+				status: 'success',
+				data: user,
+				token
+			});
 		});
 	} catch (err) {
 		console.error(err.message);
-		res.status(500).send('Server error');
+		res.status(500).send({
+			status: 'fail',
+			message: 'Server error.'
+		});
+	}
+};
+
+const getUsers = async (req, res) => {
+	const { id } = req.params;
+
+	if (req.user.id !== id && req.user.role !== 'admin') {
+		return res.status(403).send({
+			status: 'fail',
+			message: 'Unauthorized request.'
+		});
+	}
+
+	try {
+		const user = await User.findById(req.user.id).select('-password');
+		res.status(200).send({
+			status: 'success',
+			data: user
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send({
+			status: 'fail',
+			message: 'Server error.'
+		});
+	}
+};
+
+const getOneUser = async (req, res) => {
+	if (req.user.role !== 'admin') {
+		res.status(403).send({
+			status: 'fail',
+			message: 'Unauthorized request.'
+		});
+	}
+
+	try {
+		const users = await User.find({}).select('-password');
+		res.status(200).send({
+			status: 'success',
+			data: users
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send({
+			status: 'fail',
+			message: 'Server error.'
+		});
 	}
 };
 
 module.exports = {
-	createUser
+	createUser,
+	getUsers,
+	getOneUser
 };
