@@ -119,8 +119,7 @@ const updateUser = async (req, res) => {
 
 		if (!user) return res.status(404).send({ status: 'fail', message: 'User not found' });
 
-		// Make sure user owns contact
-		// if (user.user.toString() !== req.user.id) return res.status(401).json({ msg: 'Not authorized' });
+		//* validate requesting user
 
 		user = await User.findByIdAndUpdate(req.params.id, { $set: userFields }, { new: true });
 
@@ -131,9 +130,27 @@ const updateUser = async (req, res) => {
 	}
 };
 
+const deleteUser = async (req, res) => {
+	try {
+		const user = await User.findById(req.params.id);
+
+		if (!user) return res.status(404).send({ status: 'fail', message: 'User not found' });
+
+		//* validate requesting user
+
+		await User.findByIdAndRemove(req.params.id);
+
+		res.status(200).send({ status: 'success', message: 'User removed' });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send({ status: 'fail', message: 'Internal Server Error' });
+	}
+};
+
 module.exports = {
 	createUser,
 	getUsers,
 	getOneUser,
-	updateUser
+	updateUser,
+	deleteUser
 };
