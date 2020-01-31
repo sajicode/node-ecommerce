@@ -104,8 +104,36 @@ const getOneUser = async (req, res) => {
 	}
 };
 
+const updateUser = async (req, res) => {
+	const { first_name, last_name, phone, email } = req.body;
+
+	// Build user object
+	const userFields = {};
+	if (first_name) userFields.first_name = first_name;
+	if (last_name) userFields.last_name = last_name;
+	if (phone) userFields.phone = phone;
+	if (email) userFields.email = email;
+
+	try {
+		let user = await User.findById(req.params.id);
+
+		if (!user) return res.status(404).send({ status: 'fail', message: 'User not found' });
+
+		// Make sure user owns contact
+		// if (user.user.toString() !== req.user.id) return res.status(401).json({ msg: 'Not authorized' });
+
+		user = await User.findByIdAndUpdate(req.params.id, { $set: userFields }, { new: true });
+
+		res.status(200).send({ status: 'success', data: user });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send({ status: 'fail', message: 'Internal server error' });
+	}
+};
+
 module.exports = {
 	createUser,
 	getUsers,
-	getOneUser
+	getOneUser,
+	updateUser
 };
