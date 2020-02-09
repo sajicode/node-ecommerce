@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
 		let user = await User.findOne({ email });
 
 		if (user) {
-			return res.status(400).json({ msg: 'User already exists' });
+			return res.status(400).json({ status: 'fail', message: 'User already exists' });
 		}
 
 		user = new User({
@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
 
 		const payload = {
 			user: {
-				id: user.id,
+				id: user._id,
 				first_name: user.first_name,
 				last_name: user.last_name,
 				role: user.role
@@ -56,7 +56,7 @@ const createUser = async (req, res) => {
 	}
 };
 
-const getUsers = async (req, res) => {
+const getOneUser = async (req, res) => {
 	const { id } = req.params;
 
 	if (req.user.id !== id && req.user.role !== 'admin') {
@@ -76,12 +76,12 @@ const getUsers = async (req, res) => {
 		console.error(err.message);
 		res.status(500).send({
 			status: 'fail',
-			message: 'Server error.'
+			message: err.message
 		});
 	}
 };
 
-const getOneUser = async (req, res) => {
+const getUsers = async (req, res) => {
 	if (req.user.role !== 'admin') {
 		res.status(403).send({
 			status: 'fail',
